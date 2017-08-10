@@ -19,10 +19,10 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     var trackingFallbackTimer: Timer?
     
     let session = ARSession()
-    let fallbackConfiguration = ARSessionConfiguration()
+    let fallbackConfiguration = AROrientationTrackingConfiguration()
     
-    let standardConfiguration: ARWorldTrackingSessionConfiguration = {
-        let configuration = ARWorldTrackingSessionConfiguration()
+    let standardConfiguration: ARWorldTrackingConfiguration = {
+        let configuration = ARWorldTrackingConfiguration()
         configuration.planeDetection = .horizontal
         return configuration
     }()
@@ -86,7 +86,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 		// Prevent the screen from being dimmed after a while.
 		UIApplication.shared.isIdleTimerDisabled = true
 		
-		if ARWorldTrackingSessionConfiguration.isSupported {
+        if ARWorldTrackingConfiguration.isSupported {
 			// Start the ARSession.
 			resetTracking()
 		} else {
@@ -418,7 +418,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         let normalizedTrackImageBoundingBox = trackImageBoundingBox!.applying(t)
         
         // Transfrom the rect from view space to image space
-        guard let fromViewToCameraImageTransform = self.sceneView.session.currentFrame?.displayTransform(withViewportSize: self.sceneView.frame.size, orientation: UIInterfaceOrientation.portrait).inverted() else {
+        guard let fromViewToCameraImageTransform = self.sceneView.session.currentFrame?.displayTransform(for: .portrait, viewportSize: self.sceneView.frame.size).inverted() else {
             return
         }
         var trackImageBoundingBoxInImage =  normalizedTrackImageBoundingBox.applying(fromViewToCameraImageTransform)
@@ -447,7 +447,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             
             // Transfrom the rect from image space to view space
             trackImageBoundingBoxInImage.origin.y = 1 - trackImageBoundingBoxInImage.origin.y
-            guard let fromCameraImageToViewTransform = self.sceneView.session.currentFrame?.displayTransform(withViewportSize: self.sceneView.frame.size, orientation: UIInterfaceOrientation.portrait) else {
+            guard let fromCameraImageToViewTransform = self.sceneView.session.currentFrame?.displayTransform(for: .portrait, viewportSize: self.sceneView.frame.size) else {
                 return
             }
             let normalizedTrackImageBoundingBox = trackImageBoundingBoxInImage.applying(fromCameraImageToViewTransform)
